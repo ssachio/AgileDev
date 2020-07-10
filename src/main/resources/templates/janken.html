@@ -9,14 +9,12 @@
 <body>
   <h1>Hello Janken</h1>
   <form action="/janken" method="post">
-    <!--<input type="button" name="hand" value="gu">-->
     <button type="submit" name="hand" value="gu">グー</button>
     <button type="submit" name="hand" value="choki">チョキ</button>
     <button type="submit" name="hand" value="pa">パー</button>
   </form>
 </body>
 <div th:if="${winner}">
-  <!-- 値の表示方法にも2種類ある-->
   <h2>Player: [[${playerHand}]]</h2>
   <h2>CPU: [[${cpuHand}]]</h2>
   <h2>Winner is [[${winner}]]</h2>
