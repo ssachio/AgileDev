@@ -1,1 +1,23 @@
-ジャンケンポン
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Janken Game</title>
+</head>
+
+<body>
+  <h1>Hello Janken</h1>
+  <form action="/janken" method="post">
+    <!--<input type="button" name="hand" value="gu">-->
+    <button type="submit" name="hand" value="gu">グー</button>
+    <button type="submit" name="hand" value="choki">チョキ</button>
+    <button type="submit" name="hand" value="pa">パー</button>
+  </form>
+</body>
+<div th:if="${cpuHand}">
+  <!-- 値の表示方法にも2種類ある-->
+  <h1>GET [[${cpuHand}]]</h1>
+</div>
+
+</html>
