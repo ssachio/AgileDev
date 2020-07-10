@@ -15,9 +15,11 @@
     <button type="submit" name="hand" value="pa">パー</button>
   </form>
 </body>
-<div th:if="${cpuHand}">
+<div th:if="${winner}">
   <!-- 値の表示方法にも2種類ある-->
-  <h1>GET [[${cpuHand}]]</h1>
+  <h2>Player: [[${playerHand}]]</h2>
+  <h2>CPU: [[${cpuHand}]]</h2>
+  <h2>Winner is [[${winner}]]</h2>
 </div>
 
 </html>
