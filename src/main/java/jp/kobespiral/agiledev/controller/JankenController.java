@@ -1,5 +1,6 @@
 package jp.kobespiral.agiledev.controller;
 
+import java.security.Principal;
 import java.util.Random;
 
 import org.springframework.stereotype.Controller;
@@ -17,18 +18,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class JankenController {
   Random rand = new Random();
 
+  /**
+   *
+   * @param hand
+   * @param model
+   * @param principal ログイン時のユーザ情報などを保持している
+   * @return
+   */
   @PostMapping
-  public String janken(@RequestParam("hand") final String hand, final ModelMap model) {
+  public String janken(@RequestParam("hand") final String hand, ModelMap model, Principal principal) {
     model.addAttribute("playerHand", hand);
     String cpuHand = this.getCpuHand();
     model.addAttribute("cpuHand", cpuHand);
     model.addAttribute("winner", getWinner(hand, cpuHand));
+    model.addAttribute("username", principal.getName());
 
     return "janken.html";
   }
 
   @GetMapping
-  public String janken() {
+  public String janken(ModelMap model, Principal principal) {
+    model.addAttribute("username", principal.getName());
     return "janken.html";
   }
 
