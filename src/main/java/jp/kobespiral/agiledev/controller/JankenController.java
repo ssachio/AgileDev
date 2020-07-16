@@ -31,17 +31,25 @@ public class JankenController {
    * @param principal ログイン時のユーザ情報などを保持している
    * @return
    */
-  @PostMapping
+  @PostMapping("hand")
   public String janken(@RequestParam("hand") final String hand, ModelMap model, Principal principal) {
-    model.addAttribute("playerHand", hand);
-    String cpuHand = this.getCpuHand();
-    model.addAttribute("cpuHand", cpuHand);
-    model.addAttribute("winner", getWinner(hand, cpuHand));
     String loginUser = principal.getName();
-    model.addAttribute("username", loginUser);
-    this.jbattlers.addJankenUser(loginUser);
+    this.jbattlers.addUserHand(loginUser, hand);
+
+    // もし2人分の手が入力されていたら
+    // じゃんけん実施
+    // winner(ユーザ名を入れる)をmodelに追加
+    if (this.jbattlers.countJankenHands() >= 2) {
+      model.addAttribute("winner", this.getWinner(loginUser));
+    }
+
     System.out.println("Janken Post-------------------------");
+    model.addAttribute("username", principal.getName());
     model.addAttribute("userCount", this.jbattlers.countJankenUsers());
+    model.addAttribute("enter", loginUser);
+    model.addAttribute("playerHand", this.jbattlers.getPlayerHand(loginUser));
+    model.addAttribute("enemyHand", this.jbattlers.getEnemyHand(loginUser));
+
     return "janken.html";
   }
 
@@ -51,14 +59,27 @@ public class JankenController {
     return "janken.html";
   }
 
-  private String getWinner(String playerHand, String cpuHand) {
-    if (playerHand.equals(cpuHand)) {
-      return "Draw";
-    } else if (playerHand.equals("gu") && cpuHand.equals("choki") || playerHand.equals("choki") && cpuHand.equals("pa")
-        || playerHand.equals("pa") && cpuHand.equals("gu")) {
-      return "Player";
+  // playerの勝ちの場合はplayer nameを，enemyの勝ちの場合はenemy nameを返す
+  private String getWinner(String player) {
+    // playerの手とenemyの手をjudgeJankenにわたす
+    String winner = this.judgeJanken(this.jbattlers.getPlayerHand(player), this.jbattlers.getEnemyHand(player));
+    if (winner.equals("enemy")) {
+      return this.jbattlers.getEnemyName(player);
     }
-    return "CPU";
+    if (winner.equals("player")) {
+      return player;
+    }
+    return winner;
+  }
+
+  private String judgeJanken(String playerHand, String enemyHand) {
+    if (playerHand.equals(enemyHand)) {
+      return "Draw";
+    } else if (playerHand.equals("gu") && enemyHand.equals("choki")
+        || playerHand.equals("choki") && enemyHand.equals("pa") || playerHand.equals("pa") && enemyHand.equals("gu")) {
+      return "player";
+    }
+    return "enemy";
   }
 
   private String getCpuHand() {

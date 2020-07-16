@@ -15,16 +15,17 @@
   </div>
   <div th:if="${enter}">
     <a href="/janken/exit">退室</a>
+    <form action="/janken/hand" method="post">
+      <button type="submit" name="hand" value="gu">グー</button>
+      <button type="submit" name="hand" value="choki">チョキ</button>
+      <button type="submit" name="hand" value="pa">パー</button>
+    </form>
     <div th:if="${userCount ge 2}">
-      <form action="/janken" method="post">
-        <button type="submit" name="hand" value="gu">グー</button>
-        <button type="submit" name="hand" value="choki">チョキ</button>
-        <button type="submit" name="hand" value="pa">パー</button>
-      </form>
+      じゃんけんぽん！
     </div>
     <div th:if="${winner}">
-      <h2>Player: [[${playerHand}]]</h2>
-      <h2>CPU: [[${cpuHand}]]</h2>
+      <h2>You: [[${playerHand}]]</h2>
+      <h2>Enemy: [[${enemyHand}]]</h2>
       <h2>Winner is [[${winner}]]</h2>
     </div>
   </div>
