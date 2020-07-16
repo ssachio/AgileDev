@@ -3,12 +3,15 @@ package jp.kobespiral.agiledev.controller;
 import java.security.Principal;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import jp.kobespiral.agiledev.model.JankenBattlers;
 
 /**
  * JankenController
@@ -17,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("janken")
 public class JankenController {
   Random rand = new Random();
+
+  @Autowired
+  private JankenBattlers jbattlers;
 
   /**
    *
@@ -31,8 +37,11 @@ public class JankenController {
     String cpuHand = this.getCpuHand();
     model.addAttribute("cpuHand", cpuHand);
     model.addAttribute("winner", getWinner(hand, cpuHand));
-    model.addAttribute("username", principal.getName());
-
+    String loginUser = principal.getName();
+    model.addAttribute("username", loginUser);
+    this.jbattlers.addJankenUser(loginUser);
+    System.out.println("Janken Post-------------------------");
+    model.addAttribute("userCount", this.jbattlers.countJankenUsers());
     return "janken.html";
   }
 
