@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AgileDevApplication {
+public class AgiledevApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(AgileDevApplication.class, args);
+    SpringApplication.run(AgiledevApplication.class, args);
   }
 
 }
