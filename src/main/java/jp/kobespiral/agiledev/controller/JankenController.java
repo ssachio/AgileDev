@@ -55,7 +55,7 @@ public class JankenController {
 
   @GetMapping
   public String janken(ModelMap model, Principal principal) {
-    model.addAttribute("username", principal.getName());
+    this.exitRoom(model, principal);
     return "janken.html";
   }
 
@@ -80,21 +80,6 @@ public class JankenController {
       return "player";
     }
     return "enemy";
-  }
-
-  private String getCpuHand() {
-    final int cpuHand = rand.nextInt(3);
-    switch (cpuHand) {
-      case 0:
-        return "gu";
-      case 1:
-        return "choki";
-      case 2:
-        return "pa";
-    }
-    System.out.println(cpuHand);
-    return "dummy";
-
   }
 
   @GetMapping("enter")
