@@ -76,4 +76,26 @@ public class JankenController {
 
   }
 
+  @GetMapping("enter")
+  public String enterRoom(ModelMap model, Principal principal) {
+    String loginUser = principal.getName();
+    model.addAttribute("username", loginUser);
+    this.jbattlers.addJankenUser(loginUser);
+    System.out.println("enter get-------------------------");
+    model.addAttribute("userCount", this.jbattlers.countJankenUsers());
+    model.addAttribute("enter", loginUser);
+    return "janken.html";
+  }
+
+  @GetMapping("exit")
+  public String exitRoom(ModelMap model, Principal principal) {
+    String loginUser = principal.getName();
+    model.addAttribute("username", loginUser);
+    model.addAttribute("exit", loginUser);
+    this.jbattlers.removeJankenUser(loginUser);
+    System.out.println("exit get-------------------------");
+    model.addAttribute("userCount", this.jbattlers.countJankenUsers());
+    return "janken.html";
+  }
+
 }
