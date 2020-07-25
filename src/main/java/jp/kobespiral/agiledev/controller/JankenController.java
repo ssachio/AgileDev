@@ -4,14 +4,22 @@ import java.security.Principal;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import jp.kobespiral.agiledev.model.JankenBattlers;
+import jp.kobespiral.agiledev.service.AsyncJanken;
 
 /**
  * JankenController
@@ -23,6 +31,37 @@ public class JankenController {
 
   @Autowired
   private JankenBattlers jbattlers;
+
+  @Autowired
+  AsyncJanken asyncJanken;
+
+  @GetMapping("asyncJanken")
+  public SseEmitter asyncJanken() {
+    SseEmitter emitter = new SseEmitter();
+    asyncJanken.asyncJanken(emitter, this.jbattlers);
+    return emitter;
+  }
+
+  @RequestMapping(value = "asyncHand", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseEntity<String> asyncHand(ModelMap model, Principal principal) {
+    System.out.println("[[[[[janken]]]]]");
+    String loginUser = principal.getName();
+    // enterしていない場合はexitRoomを実行する
+    if (!this.jbattlers.exists(loginUser)) {
+      model.addAttribute("exit", loginUser);
+      this.jbattlers.removeJankenUser(loginUser);
+      System.out.println("exit get-------------------------");
+      model.addAttribute("userCount", this.jbattlers.countJankenUsers());
+
+    }
+
+    String playerHand = this.jbattlers.getPlayerHand(loginUser);
+    System.out.println("----------------janken" + playerHand);
+    // return this.janken(playerHand, model, principal);
+    return new ResponseEntity<>("chokiiii", HttpStatus.OK);
+
+  }
 
   /**
    *
@@ -39,6 +78,7 @@ public class JankenController {
     // もし2人分の手が入力されていたら
     // じゃんけん実施
     // winner(ユーザ名を入れる)をmodelに追加
+    System.out.println(this.jbattlers.countJankenHands());
     if (this.jbattlers.countJankenHands() >= 2) {
       model.addAttribute("winner", this.getWinner(loginUser));
     }

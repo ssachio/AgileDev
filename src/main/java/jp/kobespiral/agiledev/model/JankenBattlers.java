@@ -19,6 +19,16 @@ public class JankenBattlers {
     this.jusers.add(ju);
   }
 
+  public boolean exists(String name) {
+    for (JankenUser j : this.jusers) {
+      if (j.getName().equals(name)) {
+        return true;
+      }
+    }
+    return false;
+
+  }
+
   public void removeJankenUser(String name) {
     Iterator<JankenUser> iterator = this.jusers.iterator();
     while (iterator.hasNext()) {

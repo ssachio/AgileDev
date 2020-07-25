@@ -4,9 +4,27 @@
 <head>
   <meta charset="utf-8">
   <title>Janken Game</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>
+    $("p1").text("");
+    var sse = new EventSource('http://localhost:8080/janken/asyncJanken');
+    sse.onmessage = function (evt) {
+      $("#p1").text(evt.data);
+      console.log(evt.data);
+      var request = new XMLHttpRequest();
+      request.open('GET', evt.origin + "/janken/asyncHand", true);
+      request.send();
+      console.log(evt.origin + evt.data);
+      request.onload = function (data) {
+        console.log("onload");
+        console.log(data);
+      }
+    }
+  </script>
 </head>
 
 <body>
+  <p id="p1"></p>
   <h1>Hello Janken</h1>
   user:[[${username}]]
   ただいまの入室者数：[[${userCount}]]
