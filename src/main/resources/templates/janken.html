@@ -4,29 +4,62 @@
 <head>
   <meta charset="utf-8">
   <title>Janken Game</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script>
-    $("p1").text("");
     var sse = new EventSource('http://localhost:8080/janken/asyncJanken');
     sse.onmessage = function (evt) {
-      $("#p1").text(evt.data);
       console.log(evt.data);
+      var hands1 = JSON.parse(evt.data);
+      var username1 = document.getElementById("uname").textContent;
+      var enemyname1, userhand1, enemyhand1;
+      updateJankenResult(hands1, username1);
+
+
+      // ここから下はなくても良い．こんなこともできるというサンプルとして置いておく
       var request = new XMLHttpRequest();
       request.open('GET', evt.origin + "/janken/asyncHand", true);
       request.send();
       console.log(evt.origin + evt.data);
-      request.onload = function (data) {
-        console.log("onload");
-        console.log(data);
+      request.onload = function () {
+        console.log(request.response);
+        console.log(document.getElementById("uname").textContent);
+        var hands2 = JSON.parse(request.response);
+        var username2 = document.getElementById("uname").textContent;
+        updateJankenResult(hands2, username2);
+
       }
+    }
+    function updateJankenResult(handsObj, username) {
+      var enemyname, userhand, enemyhand;
+      for (i = 0; i < handsObj.length; i++) {
+        console.log(handsObj[i]);
+        if (handsObj[i].name == username) {
+          userhand = handsObj[i].hand;
+          document.getElementById("uhand").textContent = userhand;
+        } else {
+          enemyhand = handsObj[i].hand;
+          document.getElementById("ehand").textContent = enemyhand;
+          enemyname = handsObj[i].name;
+        }
+      }
+      judgeJanken(username, userhand, enemyname, enemyhand);
+
+    }
+    function judgeJanken(username, userhand, enemyname, enemyhand) {
+      if (userhand == enemyhand) {
+        document.getElementById("winner").textContent = "Draw"
+      } else if (userhand == "gu" && enemyhand == "choki" || userhand == "choki" && enemyhand == "pa" || userhand == "pa" && enemyhand == "gu") {
+        document.getElementById("winner").textContent = username;
+      } else {
+        document.getElementById("winner").textContent = enemyname;
+      }
+
     }
   </script>
 </head>
 
 <body>
-  <p id="p1"></p>
   <h1>Hello Janken</h1>
-  user:[[${username}]]
+  user:<span id="uname">[[${username}]]</span>
   ただいまの入室者数：[[${userCount}]]
   <div th:if="${exit}">
     <a href="/janken/enter">入室</a>
@@ -41,10 +74,10 @@
     <div th:if="${userCount ge 2}">
       じゃんけんぽん！
     </div>
-    <div th:if="${winner}">
-      <h2>You: [[${playerHand}]]</h2>
-      <h2>Enemy: [[${enemyHand}]]</h2>
-      <h2>Winner is [[${winner}]]</h2>
+    <div>
+      <h2>You: <span id="uhand"></span></h2>
+      <h2>Enemy: <span id="ehand"></span></h2>
+      <h2>Winner is <span id="winner"></span></h2>
     </div>
   </div>
 </body>

@@ -23,8 +23,10 @@ public class AsyncJanken {
           TimeUnit.SECONDS.sleep(1);
           continue;
         }
-        emitter.send("/janken/asyncHand");
-        System.out.println("jankenpon------");
+        // emitter.send("/janken/asyncHand");// 指定したAPIを呼び出させるメッセージ．
+        // TODO Javaオブジェクトを投げて直接htmlで表示させたい
+
+        emitter.send(jkbattle.getJankenUser());
         // SseEventBuilder eventBuilder = SseEmitter.event();
         // emitter.send(eventBuilder.data(jkbattle).name("jankenbattlers").id(String.valueOf(jkbattle.hashCode())));
         break;

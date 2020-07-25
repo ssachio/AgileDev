@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 public class JankenBattlers {
   ArrayList<JankenUser> jusers = new ArrayList<>();
 
+  public ArrayList<JankenUser> getJankenUser() {
+    return this.jusers;
+  }
+
   public void addJankenUser(String name) {
     for (JankenUser j : this.jusers) {
       if (j.getName().equals(name)) {
