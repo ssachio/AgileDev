@@ -1,6 +1,7 @@
 package jp.kobespiral.agiledev.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import jp.kobespiral.agiledev.model.JankenBattlers;
+import jp.kobespiral.agiledev.model.JankenUser;
+import jp.kobespiral.agiledev.service.AsyncJanken;
 
 /**
  * JankenController
@@ -24,32 +29,41 @@ public class JankenController {
   @Autowired
   private JankenBattlers jbattlers;
 
+  @Autowired
+  AsyncJanken asyncJanken;
+
+  @GetMapping("asyncJanken")
+  public SseEmitter asyncJanken() {
+    SseEmitter emitter = new SseEmitter();
+    asyncJanken.asyncJanken(emitter, this.jbattlers);
+    return emitter;
+  }
+
+  @RequestMapping("asyncHand")
+  @ResponseBody // json呼び出し
+  public ArrayList<JankenUser> asyncHand() {
+    System.out.println("[[[[[janken]]]]]");
+
+    // jbattlersそのものをreturnしてもパースしてくれないので，JavaのBeanのリストを返すようにする
+    return this.jbattlers.getJankenUser();
+
+  }
+
   /**
    *
    * @param hand
    * @param model
    * @param principal ログイン時のユーザ情報などを保持している
+   *                  このメソッドはなくても良い．@Controllerの中でjsonを返すメソッドの実装方法として置いておく
    * @return
    */
   @PostMapping("hand")
   public String janken(@RequestParam("hand") final String hand, ModelMap model, Principal principal) {
     String loginUser = principal.getName();
     this.jbattlers.addUserHand(loginUser, hand);
-
-    // もし2人分の手が入力されていたら
-    // じゃんけん実施
-    // winner(ユーザ名を入れる)をmodelに追加
-    if (this.jbattlers.countJankenHands() >= 2) {
-      model.addAttribute("winner", this.getWinner(loginUser));
-    }
-
-    System.out.println("Janken Post-------------------------");
-    model.addAttribute("username", principal.getName());
+    model.addAttribute("username", loginUser);
     model.addAttribute("userCount", this.jbattlers.countJankenUsers());
     model.addAttribute("enter", loginUser);
-    model.addAttribute("playerHand", this.jbattlers.getPlayerHand(loginUser));
-    model.addAttribute("enemyHand", this.jbattlers.getEnemyHand(loginUser));
-
     return "janken.html";
   }
 
@@ -57,29 +71,6 @@ public class JankenController {
   public String janken(ModelMap model, Principal principal) {
     this.exitRoom(model, principal);
     return "janken.html";
-  }
-
-  // playerの勝ちの場合はplayer nameを，enemyの勝ちの場合はenemy nameを返す
-  private String getWinner(String player) {
-    // playerの手とenemyの手をjudgeJankenにわたす
-    String winner = this.judgeJanken(this.jbattlers.getPlayerHand(player), this.jbattlers.getEnemyHand(player));
-    if (winner.equals("enemy")) {
-      return this.jbattlers.getEnemyName(player);
-    }
-    if (winner.equals("player")) {
-      return player;
-    }
-    return winner;
-  }
-
-  private String judgeJanken(String playerHand, String enemyHand) {
-    if (playerHand.equals(enemyHand)) {
-      return "Draw";
-    } else if (playerHand.equals("gu") && enemyHand.equals("choki")
-        || playerHand.equals("choki") && enemyHand.equals("pa") || playerHand.equals("pa") && enemyHand.equals("gu")) {
-      return "player";
-    }
-    return "enemy";
   }
 
   @GetMapping("enter")
